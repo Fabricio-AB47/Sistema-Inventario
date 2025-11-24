@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/_bootstrap.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $dataFile = __DIR__ . '/../data/laptops.json';
@@ -95,6 +96,14 @@ try {
             respond(405, ['error' => 'Método no permitido']);
     }
 } catch (Throwable $th) {
+    // Reutilizamos el logger de DB para tener trazas en storage/logs
+    if (function_exists('logDbError')) {
+        logDbError($th->getMessage(), [
+            'file' => __FILE__,
+            'line' => $th->getLine(),
+            'method' => $method
+        ]);
+    }
     respond(500, ['error' => 'Ocurrió un error interno', 'detail' => $th->getMessage()]);
 }
 

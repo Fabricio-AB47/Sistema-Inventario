@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/_bootstrap.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -155,6 +156,11 @@ try {
     $sent = $mail->send();
     respond(200, ['sent' => $sent, 'file' => $fileName]);
 } catch (Exception $e) {
+    logDbError($e->getMessage(), [
+        'file' => __FILE__,
+        'line' => $e->getLine(),
+        'method' => $method
+    ]);
     respond(500, ['error' => 'No se pudo enviar el correo: ' . $e->getMessage()]);
 }
 

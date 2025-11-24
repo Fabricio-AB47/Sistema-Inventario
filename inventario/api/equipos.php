@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/_bootstrap.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -125,6 +126,11 @@ try {
 
     respond(405, ['error' => 'Método no permitido']);
 } catch (Throwable $th) {
+    logDbError($th->getMessage(), [
+        'file' => __FILE__,
+        'line' => $th->getLine(),
+        'method' => $method
+    ]);
     respond(500, ['error' => 'Error interno', 'detail' => $th->getMessage()]);
 }
 
