@@ -306,9 +306,84 @@ $adminEntregaRol = $user['tipo_nombre'] ?? 'ADMINISTRADOR';
     .modal__header { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
     .modal__body { margin-bottom: 12px; line-height: 1.4; }
     .modal__actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .acta__signatures {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .acta__signatures--stack {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-template-columns: none !important;
+      gap: 24px !important;
+      align-items: stretch;
+    }
+    .acta__signatures--stack .acta__sig {
+      width: 100%;
+      max-width: none;
+      margin: 0 auto;
+      padding-top: 12px;
+    }
+    .acta__signatures--stack .signature-pad {
+      width: 100%;
+      height: clamp(260px, 60vw, 520px);
+    }
+    .acta__signatures--stack .acta__sig-line {
+      width: 92%;
+      max-width: none;
+    }
+    @media screen and (min-width: 1200px) {
+      .acta__signatures {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+      }
+    }
+    @media screen and (max-width: 1400px) {
+      .acta__signatures {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        gap: 22px;
+        align-items: stretch;
+      }
+      .acta__sig {
+        padding: 12px 10px 0;
+        width: 100%;
+        max-width: none;
+        margin: 0 auto;
+      }
+      .signature-pad {
+        width: 100%;
+        height: clamp(240px, 60vw, 480px);
+      }
+      .acta__sig-line {
+        width: 92%;
+        max-width: none;
+      }
+    }
+    @media screen and (max-width: 1400px) and (orientation: landscape) {
+      .signature-pad {
+        height: clamp(280px, 65vw, 520px);
+      }
+    }
   </style>
 
   <script src="assets/js/acta-sign.js"></script>
   <script src="assets/js/asignacion.js"></script>
+  <script>
+    (function() {
+      const sigWrap = document.querySelector('.acta__signatures');
+      const applyStack = () => {
+        if (!sigWrap) return;
+        if (window.innerWidth <= 1400) {
+          sigWrap.classList.add('acta__signatures--stack');
+        } else {
+          sigWrap.classList.remove('acta__signatures--stack');
+        }
+      };
+      applyStack();
+      window.addEventListener('resize', applyStack);
+    })();
+  </script>
 </body>
 </html>

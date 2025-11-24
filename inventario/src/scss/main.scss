@@ -464,8 +464,8 @@ tbody tr:hover {
 }
 
 .acta__signatures {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 24px;
   margin-top: 12px;
 }
@@ -506,6 +506,71 @@ tbody tr:hover {
   font-size: 12px;
   padding: 8px 10px;
   border-radius: 8px;
+}
+
+.acta__signatures--stack {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  gap: 24px !important;
+  align-items: stretch;
+}
+
+.acta__signatures--stack .acta__sig {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding-top: 12px;
+}
+
+.acta__signatures--stack .signature-pad {
+  width: 100%;
+  height: clamp(260px, 60vw, 520px);
+}
+
+.acta__signatures--stack .acta__sig-line {
+  width: 92%;
+  max-width: none;
+}
+
+@media (min-width: 1200px) {
+  .acta__signatures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 1400px) {
+  .acta__signatures {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    gap: 22px;
+    align-items: stretch;
+  }
+
+  .acta__sig {
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding-top: 12px;
+  }
+
+  .signature-pad {
+    width: 100%;
+    height: clamp(240px, 60vw, 480px);
+  }
+
+  .acta__sig-line {
+    width: 92%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 1400px) and (orientation: landscape) {
+  .signature-pad {
+    height: clamp(280px, 65vw, 520px);
+  }
 }
 
 @media print {
