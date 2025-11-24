@@ -150,13 +150,29 @@ function hasOdbcDriver(): bool
  */
 function logDbError(string $message, array $context = []): void
 {
-    $dir = dirname(__DIR__) . '/storage/logs';
-    if (!is_dir($dir)) {
-        @mkdir($dir, 0775, true);
-    }
     $line = '[' . date('c') . '] ' . $message;
     if ($context) {
         $line .= ' | ' . json_encode($context, JSON_UNESCAPED_SLASHES);
     }
-    @file_put_contents($dir . '/db-error.log', $line . PHP_EOL, FILE_APPEND);
+    $target = dirname(__DIR__) . '/storage/logs/db-error.log';
+    safeLogWrite($target, $line);
+}
+
+/**
+ * Escribe en log sin lanzar errores; si falla, degrada a la carpeta temporal del sistema.
+ */
+function safeLogWrite(string $filePath, string $line): void
+{
+    try {
+        $dir = dirname($filePath);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        if (@file_put_contents($filePath, $line . PHP_EOL, FILE_APPEND) === false) {
+            $fallback = rtrim(sys_get_temp_dir(), '/\\') . '/inventario-fallback.log';
+            @file_put_contents($fallback, $line . PHP_EOL, FILE_APPEND);
+        }
+    } catch (Throwable $ignore) {
+        // No volver a lanzar: el objetivo es nunca romper el flujo por fallas de logging.
+    }
 }

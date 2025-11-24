@@ -63,7 +63,7 @@ try {
     }
 
     // Generar archivo PDF en disco y guardar URL corta
-    $docPath = null;
+    $docPath = ''; // por defecto cadena vacía para columnas NOT NULL
     if ($docUrl !== '' && str_starts_with($docUrl, 'data:')) {
         $parts = explode(',', $docUrl, 2);
         if (count($parts) === 2) {
@@ -149,11 +149,13 @@ try {
         'documento_url' => $docPath
     ]);
 } catch (Throwable $th) {
-    logDbError($th->getMessage(), [
+    $ctx = [
         'file' => __FILE__,
         'line' => $th->getLine(),
         'method' => $method
-    ]);
+    ];
+    logDbError($th->getMessage(), $ctx);
+    logApiError($th->getMessage(), $ctx);
     respond(500, ['error' => 'Error interno', 'detail' => $th->getMessage()]);
 }
 
@@ -162,4 +164,24 @@ function respond(int $status, array $payload): void
     http_response_code($status);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+/**
+ * Log seguro para errores de API de movimientos.
+ */
+function logApiError(string $message, array $context = []): void
+{
+    $line = '[' . date('c') . '] ' . $message;
+    if ($context) {
+        $line .= ' | ' . json_encode($context, JSON_UNESCAPED_SLASHES);
+    }
+    $target = dirname(__DIR__) . '/storage/logs/movimientos-error.log';
+    if (function_exists('safeLogWrite')) {
+        safeLogWrite($target, $line);
+        return;
+    }
+    if (@file_put_contents($target, $line . PHP_EOL, FILE_APPEND) === false) {
+        $fallback = rtrim(sys_get_temp_dir(), '/\\') . '/inventario-movimientos-fallback.log';
+        @file_put_contents($fallback, $line . PHP_EOL, FILE_APPEND);
+    }
 }

@@ -10,6 +10,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 
 if (!function_exists('str_ends_with')) {
     function str_ends_with(string $haystack, string $needle): bool
@@ -28,6 +29,13 @@ function envClean(string $key, string $default = ''): string
         $v = substr($v, 1, -1);
     }
     return trim($v);
+}
+
+function envBool(string $key, bool $default = false): bool
+{
+    $v = getenv($key);
+    if ($v === false || $v === '') return $default;
+    return filter_var($v, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? $default;
 }
 
 // Cargar env para MAIL_*
@@ -97,10 +105,19 @@ if ($sigRecibe) {
     $htmlBody .= '<p><strong>Firma recibe:</strong><br><img src="' . htmlentities($sigRecibe) . '" style="max-width:300px;"></p>';
 }
 
+$mail = null; // para que exista en el catch aunque falle antes de instanciar
+
 try {
     $mail = new PHPMailer(true);
     $mail->CharSet = 'UTF-8';
     $mail->isSMTP();
+    $debug = envBool('MAIL_DEBUG', false);
+    if ($debug) {
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        $mail->Debugoutput = function (string $str, int $level) {
+            logMailError("SMTPDEBUG[{$level}]: " . $str);
+        };
+    }
     $mail->Host = envClean('MAIL_HOST', 'smtp.gmail.com');
     $mail->SMTPAuth = true;
     $mail->Username = envClean('MAIL_USER', '');
@@ -156,11 +173,16 @@ try {
     $sent = $mail->send();
     respond(200, ['sent' => $sent, 'file' => $fileName]);
 } catch (Exception $e) {
-    logDbError($e->getMessage(), [
+    $context = [
         'file' => __FILE__,
         'line' => $e->getLine(),
-        'method' => $method
-    ]);
+        'method' => $method,
+        'to' => $to,
+        'cc' => $ccList
+    ];
+    logDbError($e->getMessage(), $context);
+    $errorInfo = ($mail instanceof PHPMailer) ? $mail->ErrorInfo : null;
+    logMailError($e->getMessage(), $context + ['errorInfo' => $errorInfo]);
     respond(500, ['error' => 'No se pudo enviar el correo: ' . $e->getMessage()]);
 }
 
@@ -211,4 +233,22 @@ function respond(int $status, array $payload): void
     http_response_code($status);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+function logMailError(string $message, array $context = []): void
+{
+    $line = '[' . date('c') . '] ' . $message;
+    if ($context) {
+        $line .= ' | ' . json_encode($context, JSON_UNESCAPED_SLASHES);
+    }
+    $target = dirname(__DIR__) . '/storage/logs/mail-error.log';
+    if (function_exists('safeLogWrite')) {
+        safeLogWrite($target, $line);
+        return;
+    }
+    // Fallback si no está disponible safeLogWrite (debería existir via config/db.php)
+    if (@file_put_contents($target, $line . PHP_EOL, FILE_APPEND) === false) {
+        $fallback = rtrim(sys_get_temp_dir(), '/\\') . '/inventario-mail-fallback.log';
+        @file_put_contents($fallback, $line . PHP_EOL, FILE_APPEND);
+    }
 }

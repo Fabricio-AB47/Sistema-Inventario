@@ -12,6 +12,10 @@ if (!is_dir($bootstrapLogDir)) {
 }
 
 set_error_handler(function (int $severity, string $message, string $file = '', int $line = 0): void {
+    // Respeta errores suprimidos con @ (error_reporting() == 0 para esa llamada)
+    if (!(error_reporting() & $severity)) {
+        return;
+    }
     // Convierte cualquier warning/notice en excepción para que lo capture el handler global.
     throw new ErrorException($message, 0, $severity, $file, $line);
 });
