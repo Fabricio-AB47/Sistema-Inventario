@@ -1,0 +1,11 @@
+# Dependencias y build
+node_modules/
+public/assets/
+
+# Entornos y configuraciones locales
+.env
+
+# Archivos temporales
+*.log
+temp/
+*.tmp
