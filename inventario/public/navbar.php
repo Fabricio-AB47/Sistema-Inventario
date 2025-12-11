@@ -15,10 +15,10 @@ $displayRole = strtoupper(trim($user['tipo_nombre'] ?? ''));
     <a class="btn-secondary" href="dashboard.php">Dashboard</a>
     <?php if ($isAdmin): ?>
       <a class="btn-secondary" href="asignacion.php">Asignacion</a>
-      <a class="btn-secondary" href="dashboard-autoridades.php">Dash Autoridades</a>
       <a class="btn-secondary" href="documentos-asignacion.php">Docs Asignación</a>
+      <a class="btn-secondary" href="depreciacion.php">Depreciacion</a>
+      <a class="btn-secondary" href="admin-activos.php">Activos</a>
       <a class="btn-secondary" href="admin-usuarios.php">Usuarios</a>
-      <a class="btn-secondary" href="admin-equipos.php">Equipos</a>
     <?php endif; ?>
     <form action="logout.php" method="post" style="display:inline;">
       <button class="btn" type="submit">Cerrar sesion</button>

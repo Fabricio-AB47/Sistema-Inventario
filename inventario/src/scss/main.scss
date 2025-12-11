@@ -236,27 +236,67 @@ textarea {
   border-radius: 999px;
 }
 
+.btn,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
+  border-radius: 999px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .btn {
-  border: none;
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
   color: #0b101c;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
-  box-shadow: 0 8px 25px rgba(255, 122, 89, 0.3);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 10px 28px rgba(255, 122, 89, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  letter-spacing: 0.3px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
 .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 30px rgba(255, 122, 89, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(255, 122, 89, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  filter: brightness(1.03);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 22px rgba(255, 122, 89, 0.32);
+}
+
+.btn:focus-visible {
+  outline: 2px solid rgba(255, 122, 89, 0.5);
+  outline-offset: 3px;
 }
 
 .btn-secondary {
-  background: #1f2c46;
-  color: #e2edff;
-  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, #24344f 0%, #1a263c 100%);
+  color: #e8f2ff;
+  box-shadow: 0 8px 18px rgba(36, 52, 79, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 22px rgba(36, 52, 79, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  filter: brightness(1.05);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 16px rgba(36, 52, 79, 0.3);
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid rgba(141, 187, 199, 0.45);
+  outline-offset: 3px;
 }
 
 .filters {

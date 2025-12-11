@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_equipo'])) {
     $estadoActivo = (int)($_POST['estado_activo'] ?? 0);
     $modelo = trim($_POST['modelo'] ?? '');
     $marca = trim($_POST['marca'] ?? '');
+    $procesador = trim($_POST['procesador'] ?? '');
     $hostname = trim($_POST['hostname'] ?? '');
     $ram = (int)($_POST['ram'] ?? 0);
     $disco = (int)($_POST['disco'] ?? 0);
@@ -44,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_equipo'])) {
         $precioTotal = round($precio + $precio * ($iva / 100), 2);
         $ins = $pdo->prepare("
             INSERT INTO equipo (
-                id_equipo, marca, modelo, num_serie, memoria_ram, almacenamiento, hostname,
+                id_equipo, marca, modelo, num_serie, memoria_ram, almacenamiento, hostname, procesador,
                 precio, iva, total, tiempo_vida_util, fecha_adquisicion, num_factura,
                 id_estado_activo, id_estado_equipo, id_tp_equipo, id_tipo_activo
             ) VALUES (
-                :id_equipo, :marca, :modelo, :serie, :ram, :disco, :hostname,
+                :id_equipo, :marca, :modelo, :serie, :ram, :disco, :hostname, :procesador,
                 :precio, :iva, :total, :vida_util, :fecha_adq, :num_factura,
                 :estado_activo, :estado_equipo, :tipo_equipo, :tipo_activo
             )
@@ -61,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_equipo'])) {
             ':ram' => $ram,
             ':disco' => $disco,
             ':hostname' => $hostname,
+            ':procesador' => $procesador,
             ':precio' => $precio,
             ':iva' => $iva,
             ':total' => $precioTotal,
@@ -81,7 +83,7 @@ $estadosEquipo = $pdo->query("SELECT id_estado_equipo, descripcion_estado_equipo
 $tiposActivo = $pdo->query("SELECT id_tipo_activo, descripcion_tp_activo FROM tipo_activo ORDER BY descripcion_tp_activo")->fetchAll();
 $estadosActivo = $pdo->query("SELECT id_estado_activo, descripcion_estado_activo FROM estado_activo ORDER BY descripcion_estado_activo")->fetchAll();
 $equipos = $pdo->query("
-    SELECT e.id_equipo, e.modelo, e.marca, e.num_serie AS serie, e.hostname, e.memoria_ram, e.almacenamiento,
+    SELECT e.id_equipo, e.modelo, e.marca, e.num_serie AS serie, e.hostname, e.memoria_ram, e.almacenamiento, e.procesador,
            e.precio, e.iva, e.total, e.fecha_adquisicion, e.num_factura,
            te.descripcion_tp_equipo AS tipo_equipo,
            es.descripcion_estado_equipo AS estado_equipo,
@@ -176,6 +178,10 @@ if (isset($_GET['eq_msg'])) {
               <input type="text" name="marca" required>
             </label>
             <label>
+              Procesador
+              <input type="text" name="procesador" placeholder="CPU / generación">
+            </label>
+            <label>
               Hostname
               <input type="text" name="hostname" placeholder="Nombre en red">
             </label>
@@ -228,12 +234,14 @@ if (isset($_GET['eq_msg'])) {
                 <th>Estado</th>
                 <th>Estado activo</th>
                 <th>Serie</th>
+                <th>Procesador</th>
                 <th>Precio</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               <?php if (!$equipos): ?>
-                <tr><td colspan="7" class="empty">Sin equipos</td></tr>
+                <tr><td colspan="9" class="empty">Sin equipos</td></tr>
               <?php else: ?>
                 <?php foreach ($equipos as $eq): ?>
                   <tr>
@@ -243,7 +251,11 @@ if (isset($_GET['eq_msg'])) {
                     <td><?php echo htmlspecialchars($eq['estado_equipo'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars($eq['estado_activo'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars($eq['serie'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($eq['procesador'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo number_format((float)($eq['total'] ?? 0), 2); ?></td>
+                    <td>
+                      <a class="btn-secondary" href="equipo-editar.php?id=<?php echo urlencode($eq['id_equipo']); ?>">Editar</a>
+                    </td>
                   </tr>
                 <?php endforeach; ?>
               <?php endif; ?>

@@ -5,6 +5,6 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// El módulo de actas ya no se usa; redirigimos al panel de equipos.
+
 header('Location: admin-equipos.php');
 exit;
